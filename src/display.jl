@@ -171,13 +171,15 @@ function draw_mesh(framebuffer, mesh::Mesh)
         projected_p3.y += (240 / 2);
 
         push!(render_queue,  Triangle((projected_p1,projected_p2,projected_p3), z_depth))
+    end
+    for tri in render_queue
         if get_rendermode() == filled
-            draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), RED)
+            draw_filled_triangle(framebuffer, tri, RED)
         elseif get_rendermode() == wireframe
-            draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), WHITE)
+            draw_wireframe_triangle(framebuffer, tri, WHITE)
         elseif get_rendermode() == both
-            draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), RED)
-            draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), WHITE)
+            draw_filled_triangle(framebuffer, tri, RED)
+            draw_wireframe_triangle(framebuffer,tri, WHITE)
         end
     end
 end
