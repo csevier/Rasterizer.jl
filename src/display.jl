@@ -137,6 +137,7 @@ function clear_framebuffer(framebuffer::Matrix{UInt32}, color::Color)
 end
 
 function draw_mesh(framebuffer, mesh::Mesh)
+    render_queue = Triangle[]
     mesh.rotation.x += .01
     for face in mesh.faces
         p1 = mesh.vertices[face.indexes[1]]
@@ -168,6 +169,8 @@ function draw_mesh(framebuffer, mesh::Mesh)
         projected_p2.y += (240 / 2);
         projected_p3.x += (320 / 2);
         projected_p3.y += (240 / 2);
+
+        push!(render_queue,  Triangle((projected_p1,projected_p2,projected_p3), z_depth))
         if get_rendermode() == filled
             draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), RED)
         elseif get_rendermode() == wireframe
