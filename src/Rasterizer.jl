@@ -51,7 +51,7 @@ function main()
     framebuffer, window, screen = setup()
     close::Bool = false
     cube = make_cube()
-    #cube = load_obj("f22.obj")
+    cube = load_obj("f22.obj")
     #cube = load_obj("train.obj")
     try
         last_frame = 0
@@ -92,8 +92,6 @@ function draw(framebuffer, window, screen, cube)
     SDL_FillRect(win_surf, Ref(window_rect), 0)
     clear_framebuffer(framebuffer, Color(0,0,0,255))
     draw_mesh(framebuffer, cube)
-    #draw_filled_triangle(framebuffer, Triangle((Vec2(1,1), Vec2(320, 15), Vec2(328, 240))), Color(255,0,0,255))
-    #draw_filled_triangle(framebuffer, Triangle((Vec2(125,125), Vec2(150, 115), Vec2(150, 140))), Color(255,0,0,255))
     draw_framebuffer!(framebuffer, screen)
     SDL_BlitScaled(screen, C_NULL, win_surf, Ref(window_rect))
     SDL_UpdateWindowSurface(window)

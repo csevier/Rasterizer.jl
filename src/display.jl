@@ -50,52 +50,43 @@ function draw_filled_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color:
     if isapprox(y_sorted[2].y,y_sorted[3].y)
         draw_flat_bottom(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])),color)
     elseif isapprox(y_sorted[2].y, y_sorted[1].y)
-        draw_flat_top(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])), Color(0,255,0,255))
+        draw_flat_top(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])), color)
     else
         my = y_sorted[2].y
-        println("should end half triangle writes at $my")
         mx = (((y_sorted[3].x - y_sorted[1].x) * (y_sorted[2].y - y_sorted[1].y)) / (y_sorted[3].y - y_sorted[1].y)) + y_sorted[1].x
         m = Vec2(mx, my)
         draw_flat_bottom(framebuffer, Triangle((y_sorted[1], y_sorted[2], m)),color)
-        draw_flat_top(framebuffer, Triangle((y_sorted[2], m, y_sorted[3])), Color(0,255,0,255))
+        draw_flat_top(framebuffer, Triangle((y_sorted[2], m, y_sorted[3])), color)
     end
 end
 
 function draw_flat_bottom(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    r3y = round(Int, tri.points[3].y)
-    r1y = round(Int,tri.points[1].y)
-    r2y = round(Int,tri.points[2].y)
-    inv_slope_1 = (tri.points[2].x - tri.points[1].x) / (r2y - r1y)
-    inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (r3y - r1y)
+    inv_slope_1 = (tri.points[2].x - tri.points[1].x) / (tri.points[2].y - tri.points[1].y)
+    inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
     x_start = tri.points[1].x
     x_end = tri.points[1].x
     y_end = 0
-    for y in range(r1y, r3y)
+    for y in range(tri.points[1].y, tri.points[3].y)
         draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start += inv_slope_1
         x_end += inv_slope_2
         y_end = y
     end
-    println("but flat bottom ended at $(y_end)")
 end
 
 function draw_flat_top(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    r3y = round(Int, tri.points[3].y)
-    r1y = round(Int,tri.points[1].y)
-    r2y = round(Int,tri.points[2].y)
-    inv_slope_1 = (tri.points[3].x - tri.points[1].x) / (r3y - r1y)
-    inv_slope_2 = (tri.points[3].x - tri.points[2].x) / (r3y - r2y)
+    inv_slope_1 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
+    inv_slope_2 = (tri.points[3].x - tri.points[2].x) / (tri.points[3].y - tri.points[2].y)
 
     x_start = tri.points[3].x
     x_end = tri.points[3].x
     y_end =0
-    for y in r3y:-1:r1y
+    for y in tri.points[3].y:-1:tri.points[1].y
         draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start -= inv_slope_1
         x_end -= inv_slope_2
         y_end = y
     end
-    println("and flat top ended at $(y_end)")
 end
 
 function draw_textured_triangle(framebuffer::Matrix{UInt32}, tri::Triangle) #uv coord.
@@ -140,7 +131,7 @@ function draw_mesh(framebuffer, mesh::Mesh)
         projected_p3.x += (320 / 2);
         projected_p3.y += (240 / 2);
         draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,0,0,255))
-        #draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,255,255,255))
+        draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,255,255,255))
     end
 end
 
@@ -153,7 +144,7 @@ function project_perspective(vec::Vec3)::Vec2
     return Vec2( (fov_factor * vec.x) / vec.z, (fov_factor * vec.y) / vec.z)
 end
 
-function should_cull(a, b, c)
+function should_cull(a::Vec3, b::Vec3, c::Vec3)
         ab = b-a
         ac = c-a
         ab = normalize(ab)
