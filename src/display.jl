@@ -39,20 +39,21 @@ function draw_line(framebuffer::Matrix{UInt32}, x1::Int, y1::Int, x2::Int, y2::I
 end
 
 function draw_wireframe_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    #draw_line(framebuffer, tri.points[1], tri.points[2], color)
-    #draw_line(framebuffer, tri.points[2], tri.points[3], color)
-    #draw_line(framebuffer, tri.points[3], tri.points[1], color)
+    draw_line(framebuffer, round(Int, tri.points[1].x), round(Int,tri.points[1].y), round(Int,tri.points[2].x), round(Int,tri.points[2].y), color)
+    draw_line(framebuffer, round(Int, tri.points[2].x), round(Int,tri.points[2].y), round(Int,tri.points[3].x), round(Int,tri.points[3].y), color)
+    draw_line(framebuffer, round(Int, tri.points[3].x), round(Int,tri.points[3].y), round(Int,tri.points[1].x), round(Int,tri.points[1].y), color)
 end
 
 function draw_filled_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
     y_sorted = sort([tri.points[1], tri.points[2], tri.points[3]], by= point -> point.y)
 
-    if y_sorted[2].y == y_sorted[3].y
+    if isapprox(y_sorted[2].y,y_sorted[3].y)
         draw_flat_bottom(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])),color)
-    elseif y_sorted[2].y == y_sorted[1].y
-        draw_flat_top(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])), color)
+    elseif isapprox(y_sorted[2].y, y_sorted[1].y)
+        draw_flat_top(framebuffer, Triangle((y_sorted[1], y_sorted[2], y_sorted[3])), Color(0,255,0,255))
     else
         my = y_sorted[2].y
+        println("should end half triangle writes at $my")
         mx = (((y_sorted[3].x - y_sorted[1].x) * (y_sorted[2].y - y_sorted[1].y)) / (y_sorted[3].y - y_sorted[1].y)) + y_sorted[1].x
         m = Vec2(mx, my)
         draw_flat_bottom(framebuffer, Triangle((y_sorted[1], y_sorted[2], m)),color)
@@ -65,24 +66,33 @@ function draw_flat_bottom(framebuffer::Matrix{UInt32}, tri::Triangle, color::Col
     inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
     x_start = tri.points[1].x
     x_end = tri.points[1].x
+    y_end = 0
     for y in range(tri.points[1].y, tri.points[3].y)
         draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start += inv_slope_1
         x_end += inv_slope_2
+        y_end = y
     end
+    println("but flat bottom ended at $(y_end)")
 end
 
 function draw_flat_top(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    inv_slope_1 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
-    inv_slope_2 = (tri.points[3].x - tri.points[2].x) / (tri.points[3].y - tri.points[2].y)
+    r3y = round(Int, tri.points[3].y)
+    r1y = round(Int,tri.points[1].y)
+    r2y = round(Int,tri.points[2].y)
+    inv_slope_1 = (tri.points[3].x - tri.points[1].x) / (r3y - r1y)
+    inv_slope_2 = (tri.points[3].x - tri.points[2].x) / (r3y - r2y)
 
     x_start = tri.points[3].x
     x_end = tri.points[3].x
-    for y in tri.points[3].y:-1:tri.points[1].y
+    y_end =0
+    for y in r3y:-1:r1y
         draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start -= inv_slope_1
         x_end -= inv_slope_2
+        y_end = y
     end
+    println("and flat top ended at $(y_end)")
 end
 
 function draw_textured_triangle(framebuffer::Matrix{UInt32}, tri::Triangle) #uv coord.

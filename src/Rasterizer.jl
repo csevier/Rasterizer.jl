@@ -51,7 +51,7 @@ function main()
     framebuffer, window, screen = setup()
     close::Bool = false
     cube = make_cube()
-    cube = load_obj("f22.obj")
+    #cube = load_obj("f22.obj")
     #cube = load_obj("train.obj")
     try
         last_frame = 0
