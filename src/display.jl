@@ -131,7 +131,7 @@ function draw_mesh(framebuffer, mesh::Mesh)
         projected_p3.x += (320 / 2);
         projected_p3.y += (240 / 2);
         draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,0,0,255))
-        draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,255,255,255))
+        #draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,255,255,255))
     end
 end
 

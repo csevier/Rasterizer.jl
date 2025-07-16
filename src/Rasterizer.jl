@@ -60,7 +60,7 @@ function main()
         last_ticks = SDL_GetTicks()
         while !close
             start = SDL_GetTicks()
-            if (SDL_GetTicks() - last_ticks < 1000/30) 
+            if (SDL_GetTicks() - last_ticks < 1000/60) 
                 # its likely we have a moment right here to invoke the garbage collector
                 GC.safepoint()
                 continue
