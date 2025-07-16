@@ -62,12 +62,15 @@ function draw_filled_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color:
 end
 
 function draw_flat_bottom(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    inv_slope_1 = (tri.points[2].x - tri.points[1].x) / (tri.points[2].y - tri.points[1].y)
-    inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
+    r3y = round(Int, tri.points[3].y)
+    r1y = round(Int,tri.points[1].y)
+    r2y = round(Int,tri.points[2].y)
+    inv_slope_1 = (tri.points[2].x - tri.points[1].x) / (r2y - r1y)
+    inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (r3y - r1y)
     x_start = tri.points[1].x
     x_end = tri.points[1].x
     y_end = 0
-    for y in range(tri.points[1].y, tri.points[3].y)
+    for y in range(r1y, r3y)
         draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start += inv_slope_1
         x_end += inv_slope_2
