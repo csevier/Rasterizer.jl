@@ -21,20 +21,16 @@ function draw_rectangle(framebuffer::Matrix{UInt32}, x::Int, y::Int, width::Int,
     end
 end
 
-function draw_line(framebuffer::Matrix{UInt32}, p1::Vec2, p2::Vec2, color::Color)
-    delta_x = p2.x - p1.x
-    delta_y = p2.y - p1.y
-    if delta_x == 0.0 && delta_y == 0.0 #same point
-        draw_pixel(framebuffer, round(Int, p1.x), round(Int, p1.y), color)
-    end
+function draw_line(framebuffer::Matrix{UInt32}, x1::Int, y1::Int, x2::Int, y2::Int, color::Color)
+    delta_x = x2 - x1
+    delta_y = y2 - y1
 
     longest_side_length = (abs(delta_x) >= abs(delta_y)) ? abs(delta_x) : abs(delta_y)
 
     x_increment = delta_x / longest_side_length
     y_increment = delta_y / longest_side_length
-
-    current_x = p1.x;
-    current_y = p1.y;
+    current_x = x1;
+    current_y = y1;
     for i in range(0, longest_side_length)
         draw_pixel(framebuffer, round(Int,current_x), round(Int, current_y), color)
         current_x += x_increment
@@ -43,9 +39,9 @@ function draw_line(framebuffer::Matrix{UInt32}, p1::Vec2, p2::Vec2, color::Color
 end
 
 function draw_wireframe_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
-    draw_line(framebuffer, tri.points[1], tri.points[2], color)
-    draw_line(framebuffer, tri.points[2], tri.points[3], color)
-    draw_line(framebuffer, tri.points[3], tri.points[1], color)
+    #draw_line(framebuffer, tri.points[1], tri.points[2], color)
+    #draw_line(framebuffer, tri.points[2], tri.points[3], color)
+    #draw_line(framebuffer, tri.points[3], tri.points[1], color)
 end
 
 function draw_filled_triangle(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
@@ -67,11 +63,10 @@ end
 function draw_flat_bottom(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
     inv_slope_1 = (tri.points[2].x - tri.points[1].x) / (tri.points[2].y - tri.points[1].y)
     inv_slope_2 = (tri.points[3].x - tri.points[1].x) / (tri.points[3].y - tri.points[1].y)
-
     x_start = tri.points[1].x
     x_end = tri.points[1].x
     for y in range(tri.points[1].y, tri.points[3].y)
-        draw_line(framebuffer, Vec2(x_start, y), Vec2(x_end, y), color)
+        draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start += inv_slope_1
         x_end += inv_slope_2
     end
@@ -84,7 +79,7 @@ function draw_flat_top(framebuffer::Matrix{UInt32}, tri::Triangle, color::Color)
     x_start = tri.points[3].x
     x_end = tri.points[3].x
     for y in tri.points[3].y:-1:tri.points[1].y
-        draw_line(framebuffer, Vec2(x_start, y), Vec2(x_end, y), color)
+        draw_line(framebuffer, round(Int, x_start), round(Int, y), round(Int, x_end), round(Int,y), color)
         x_start -= inv_slope_1
         x_end -= inv_slope_2
     end
