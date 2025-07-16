@@ -9,7 +9,7 @@ mutable struct Mesh
 end
 
 function load_obj(file::String)::Mesh
-    verts = []
+    verts = Vec3[]
     faces =[]
     lines = readlines(file) # change to eachline for big files
     for line in lines

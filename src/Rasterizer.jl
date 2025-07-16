@@ -8,7 +8,22 @@ include("display.jl")
 include("sdl.jl")
 using SimpleDirectMediaLayer
 using SimpleDirectMediaLayer.LibSDL2
-using .Display: make_framebuffer, draw_pixel, draw_rectangle, draw_line, draw_wireframe_triangle, clear_framebuffer, draw_mesh, draw_filled_triangle
+using .Display: make_framebuffer, 
+                draw_pixel, 
+                draw_rectangle, 
+                draw_line, 
+                draw_wireframe_triangle, 
+                clear_framebuffer, 
+                draw_mesh, 
+                draw_filled_triangle, 
+                set_rendermode, 
+                RenderModes, 
+                filled,
+                wireframe,
+                both,
+                enable_culling,
+                disable_culling
+                
 using .SDL: draw_framebuffer!
 using .Colors: Color
 using .Vecs: Vec2
@@ -35,6 +50,22 @@ function handle_sdl_events(close)
             scan_code = evt.key.keysym.scancode
             if scan_code == SDL_SCANCODE_Q 
                 close = true
+            end
+            if scan_code == SDL_SCANCODE_1 
+                set_rendermode(filled)
+            end
+            if scan_code == SDL_SCANCODE_2
+                println("setting to wirefram")
+                set_rendermode(wireframe)
+            end
+            if scan_code == SDL_SCANCODE_3
+                set_rendermode(both)
+            end
+            if scan_code == SDL_SCANCODE_4
+                disable_culling()
+            end
+            if scan_code == SDL_SCANCODE_5
+                enable_culling()
             end
         end
     end

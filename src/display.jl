@@ -1,9 +1,45 @@
 module Display
 using ..Vecs: Vec2, Vec3, rotate_x, rotate_y, normalize, cross, dot
-using ..Triangles: Triangle
-using ..Colors: Color, convert_to_RGB888
+using ..Triangles: Triangle, calculate_z_depth
+using ..Colors: Color, convert_to_RGB888, RED, WHITE
 using ..Meshs: Mesh
-export draw_pixel, draw_rectangle, draw_line, draw_wireframe_triangle, clear_framebuffer, draw_mesh, draw_filled_triangle
+export draw_pixel, 
+       draw_rectangle, 
+       draw_line, 
+       draw_wireframe_triangle, 
+       clear_framebuffer, 
+       draw_mesh, 
+       draw_filled_triangle, 
+       set_rendermode, 
+       get_rendermode, 
+       RenderModes, 
+       filled, 
+       wireframe, 
+       both,
+       enable_culling,
+       disable_culling
+
+@enum RenderModes filled wireframe both
+
+RENDERMODE = filled
+SHOULDCULL = true
+
+function enable_culling()
+    global SHOULDCULL = true
+end
+
+function disable_culling()
+    global SHOULDCULL = false
+end
+
+function set_rendermode(mode::RenderModes)
+    global RENDERMODE = mode
+end
+
+function get_rendermode()
+    global RENDERMODE
+    return  RENDERMODE
+end
 
 function draw_pixel(framebuffer::Matrix{UInt32}, x::Int, y::Int, color::Color)
     if x <= 320 && y <= 240 && x > 0 && y > 0
@@ -120,9 +156,11 @@ function draw_mesh(framebuffer, mesh::Mesh)
             continue
         end
 
+        z_depth = calculate_z_depth(cp1, cp2, cp3)
         projected_p1 = project_perspective(cp1)
         projected_p2 = project_perspective(cp2)
         projected_p3 = project_perspective(cp3)
+        
 
         projected_p1.x += (320 / 2);
         projected_p1.y += (240 / 2);
@@ -130,8 +168,14 @@ function draw_mesh(framebuffer, mesh::Mesh)
         projected_p2.y += (240 / 2);
         projected_p3.x += (320 / 2);
         projected_p3.y += (240 / 2);
-        draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,0,0,255))
-        #draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3)), Color(255,255,255,255))
+        if get_rendermode() == filled
+            draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), RED)
+        elseif get_rendermode() == wireframe
+            draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), WHITE)
+        elseif get_rendermode() == both
+            draw_filled_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), RED)
+            draw_wireframe_triangle(framebuffer, Triangle((projected_p1,projected_p2,projected_p3), z_depth), WHITE)
+        end
     end
 end
 
@@ -145,6 +189,10 @@ function project_perspective(vec::Vec3)::Vec2
 end
 
 function should_cull(a::Vec3, b::Vec3, c::Vec3)
+        global SHOULDCULL
+        if !SHOULDCULL
+            return false
+        end
         ab = b-a
         ac = c-a
         ab = normalize(ab)
