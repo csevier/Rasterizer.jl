@@ -23,9 +23,9 @@ using .Display: make_framebuffer,
                 both,
                 enable_culling,
                 disable_culling
-                
+
 using .SDL: draw_framebuffer!
-using .Colors: Color
+using .Colors: Color, RED
 using .Vecs: Vec2
 using .Triangles: Triangle
 using .Primitives: make_cube
@@ -82,7 +82,7 @@ function main()
     framebuffer, window, screen = setup()
     close::Bool = false
     cube = make_cube()
-    cube = load_obj("f22.obj")
+    cube = load_obj("f22_z.obj")
     #cube = load_obj("train.obj")
     try
         last_frame = 0
@@ -123,6 +123,10 @@ function draw(framebuffer, window, screen, cube)
     SDL_FillRect(win_surf, Ref(window_rect), 0)
     clear_framebuffer(framebuffer, Color(0,0,0,255))
     draw_mesh(framebuffer, cube)
+    draw_line(framebuffer,1,1, 320,1, RED)
+    draw_line(framebuffer,1,1, 1,240, RED)
+    draw_line(framebuffer,1,240, 320,240, RED)
+    draw_line(framebuffer,320,1, 320,240, RED)
     draw_framebuffer!(framebuffer, screen)
     SDL_BlitScaled(screen, C_NULL, win_surf, Ref(window_rect))
     SDL_UpdateWindowSurface(window)

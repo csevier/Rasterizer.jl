@@ -138,7 +138,7 @@ end
 
 function draw_mesh(framebuffer, mesh::Mesh)
     render_queue = Triangle[]
-    mesh.rotation.x += .01
+    #mesh.rotation.x += .01
     for face in mesh.faces
         p1 = mesh.vertices[face.indexes[1]]
         cp1 = copy(p1)
@@ -146,9 +146,9 @@ function draw_mesh(framebuffer, mesh::Mesh)
         cp2 = copy(p2)
         p3 = mesh.vertices[face.indexes[3]]
         cp3 = copy(p3)
-        cp1 = rotate_x(cp1, mesh.rotation.x)
-        cp2 = rotate_x(cp2, mesh.rotation.x)
-        cp3 = rotate_x(cp3, mesh.rotation.x)
+        #cp1 = rotate_x(cp1, mesh.rotation.x)
+        #cp2 = rotate_x(cp2, mesh.rotation.x)
+        #cp3 = rotate_x(cp3, mesh.rotation.x)
         cp1.z += 5
         cp2.z += 5
         cp3.z += 5
@@ -172,7 +172,9 @@ function draw_mesh(framebuffer, mesh::Mesh)
 
         push!(render_queue,  Triangle((projected_p1,projected_p2,projected_p3), z_depth))
     end
-    for tri in render_queue
+
+    render_queue_sorted = sort(render_queue, by= tri -> tri.z_depth, rev=true)
+    for tri in render_queue_sorted
         if get_rendermode() == filled
             draw_filled_triangle(framebuffer, tri, RED)
         elseif get_rendermode() == wireframe
